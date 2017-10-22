@@ -51,7 +51,7 @@ public static class SendSpeech {
 				responseString = sr.ReadToEnd();
 			}
 
-			Debug.Log(responseString);
+//			Debug.Log(responseString);
 		});
 	}
 
