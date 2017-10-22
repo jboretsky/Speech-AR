@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor.Networking;
+//using UnityEditor.Networking;
 using UnityEngine.UI;
 using System.Net;
 using System.IO;
@@ -66,13 +66,15 @@ public class Recognition : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		//if(_slider.stop) return;
+
 		timeLeft += Time.deltaTime;
 		if (!(Microphone.IsRecording ("Built-in Microphone")) && !_audio.isPlaying) {
 			try {
 				++i;
 				SavWav.Save("clip"+i, _audio.clip);
 				Debug.Log ("Saved audio clip" + i);
-				this.backgroundWorker1.RunWorkerAsync(Application.dataPath+"/clip"+i+".wav");
+				this.backgroundWorker1.RunWorkerAsync(Application.persistentDataPath+"/clip"+i+".wav");
 				_audio.clip = Microphone.Start("Built-in Microphone", false, interval, 44100);
 				timeLeft = (float)0;
 			}

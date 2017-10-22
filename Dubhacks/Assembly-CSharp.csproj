@@ -51,7 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\ProgressBar.cs" />
      <Compile Include="Assets\Recognition.cs" />
      <Compile Include="Assets\SavWav.cs" />
      <Compile Include="Assets\SendSpeech.cs" />

@@ -5,6 +5,7 @@
 /[Bb]uilds/
 /Assets/clip*
 /Assets/AssetStoreTools*
+/Speech-AR/
 
 # Visual Studio 2015 cache directory
 /.vs/
