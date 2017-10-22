@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor.Networking;
+using UnityEngine.UI;
 using System.Net;
 using System.IO;
 using System.ComponentModel;
@@ -35,11 +36,16 @@ public class Recognition : MonoBehaviour {
 	TextMesh _text;
 	public BackgroundWorker backgroundWorker1;
 	int i = 0;
+	public Slider _slider;
+	float timeLeft;
+	int interval = 3;
 
 	// Use this for initialization
 	void Start () {
 		_audio = GetComponent<AudioSource>();
 		_text = GetComponent<TextMesh>();
+		_slider = GameObject.Find("Slider").GetComponent<Slider>();
+		timeLeft = (float)0;
 
 		backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
 		backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.Send);
@@ -50,7 +56,7 @@ public class Recognition : MonoBehaviour {
 
 	void UpdateAudio() {
 		_audio.Stop();
-		_audio.clip = Microphone.Start("Built-in Microphone", false, 3, 44100);
+		_audio.clip = Microphone.Start("Built-in Microphone", false, interval, 44100);
 		_audio.loop = true;
 
 		if (Microphone.IsRecording("Built-in Microphone")) {
@@ -60,23 +66,27 @@ public class Recognition : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		timeLeft += Time.deltaTime;
 		if (!(Microphone.IsRecording ("Built-in Microphone")) && !_audio.isPlaying) {
 			try {
 				++i;
 				SavWav.Save("clip"+i, _audio.clip);
 				Debug.Log ("Saved audio clip" + i);
 				this.backgroundWorker1.RunWorkerAsync(Application.dataPath+"/clip"+i+".wav");
-				_audio.clip = Microphone.Start("Built-in Microphone", false, 3, 44100);
+				_audio.clip = Microphone.Start("Built-in Microphone", false, interval, 44100);
+				timeLeft = (float)0;
 			}
 			catch(Exception e) {
 				Debug.Log (e);
 			}
 		}
+		_slider.value = timeLeft / interval;
 	}
 
 	void Receive(object sender, RunWorkerCompletedEventArgs e) {
-		_text.text = (string)e.Result;
-
+		if ((string)e.Result != "") {
+			_text.text = (string)e.Result;
+		}
 	}
 
 	void Send(object sender, DoWorkEventArgs e) {
