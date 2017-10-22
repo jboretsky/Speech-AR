@@ -16,10 +16,13 @@ public class Recognition : MonoBehaviour {
 
 	void UpdateAudio() {
 		_audio.Stop();
-		_audio.clip = Microphone.Start("Built-in Microphone", false, 5, 44100);
+		_audio.clip = Microphone.Start("Built-in Microphone", false, 3, 44100);
 		_audio.loop = true;
 
-		Debug.Log (Microphone.IsRecording ("Built-in Microphone").ToString ());
+//		Debug.Log (Microphone.IsRecording ("Built-in Microphone").ToString ());
+		if (Microphone.IsRecording("Built-in Microphone")) {
+			while (!(Microphone.GetPosition (null) > 0)) {}
+		}
 	}
 
 	// Update is called once per frame
@@ -28,6 +31,8 @@ public class Recognition : MonoBehaviour {
 //			_audio.Play();
 			++i;
 			SavWav.Save("clip"+i, _audio.clip);
+			Debug.Log ("Saved audio clip" + i);
+			SendSpeech.Send(Application.dataPath+"/clip"+i+".wav");
 			_audio.clip = Microphone.Start("Built-in Microphone", false, 5, 44100);
 		}
 	}
