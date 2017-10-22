@@ -12,20 +12,10 @@ using System;
 [Serializable]
 public class TextResponse {
 	public string RecognitionStatus;
-	public N_Best[] NBest;
+	public string DisplayText;
 	public static TextResponse CreateFromJSON(string jsonString)
 	{
 		return JsonUtility.FromJson<TextResponse>(jsonString);
-	}
-}
-
-[Serializable]
-public class N_Best {
-	public string Display;
-	public string Confidence;
-	public static N_Best CreateFromJSON(string jsonString)
-	{
-		return JsonUtility.FromJson<N_Best>(jsonString);
 	}
 }
 
@@ -43,7 +33,8 @@ public class Recognition : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		_audio = GetComponent<AudioSource>();
-		_text = GetComponent<TextMesh>();
+//		_text = GetComponent<TextMesh>();
+		_text = GameObject.Find ("Text").GetComponent<TextMesh> ();
 		_slider = GameObject.Find("Slider").GetComponent<Slider>();
 		timeLeft = (float)0;
 
@@ -66,8 +57,6 @@ public class Recognition : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		//if(_slider.stop) return;
-
 		timeLeft += Time.deltaTime;
 		if (!(Microphone.IsRecording ("Built-in Microphone")) && !_audio.isPlaying) {
 			try {
@@ -86,14 +75,15 @@ public class Recognition : MonoBehaviour {
 	}
 
 	void Receive(object sender, RunWorkerCompletedEventArgs e) {
-		if ((string)e.Result != "") {
+		Debug.Log ("e result: " + e.Result);
+		if (!(string.IsNullOrEmpty((string)e.Result))) {
 			_text.text = (string)e.Result;
 		}
 	}
 
 	void Send(object sender, DoWorkEventArgs e) {
 		HttpWebRequest request = null;
-		request = (HttpWebRequest)HttpWebRequest.Create ("https://speech.platform.bing.com/speech/recognition/interactive/cognitiveservices/v1?language=en-US&format=detailed");
+		request = (HttpWebRequest)HttpWebRequest.Create ("https://speech.platform.bing.com/speech/recognition/conversation/cognitiveservices/v1?language=en-US&format=simple");
 		request.SendChunked = true;
 		request.Accept = @"application/json;text/xml";
 		request.Method = "POST";
@@ -130,16 +120,15 @@ public class Recognition : MonoBehaviour {
 			using (StreamReader sr = new StreamReader (response.GetResponseStream ())) {
 				responseString = sr.ReadToEnd ();
 			}
-			responseString = responseString.Replace ("N-Best", "NBest");
+			Debug.Log (responseString);
 
 			TextResponse ret = TextResponse.CreateFromJSON (responseString);
+
 			if (ret.RecognitionStatus == "Success") {
-				if (ret.NBest.Length > 0) {
-					N_Best final = ret.NBest [0];
-					string result = final.Display;
-					e.Result = WrapString(result);
+				if (ret.DisplayText != "") {
+					e.Result = WrapString (ret.DisplayText);
 				} else {
-					Debug.Log ("No response");
+					Debug.Log ("Response was empty");
 				}
 			}
 		}
