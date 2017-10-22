@@ -14,7 +14,7 @@ public static class SendSpeech {
 		request.Method = "POST";
 		request.ProtocolVersion = HttpVersion.Version11;
 		request.ContentType = @"audio/wav; codec=audio/pcm; samplerate=16000";
-		request.Headers["Ocp-Apim-Subscription-Key"] = "API_KEY";
+		request.Headers["Ocp-Apim-Subscription-Key"] = "eea31b8c6a2041a59af19b436dd372d7";
 
 		// Send an audio file by 1024 byte chunks
 		using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
