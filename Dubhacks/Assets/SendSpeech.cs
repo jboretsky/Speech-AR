@@ -41,14 +41,10 @@ public static class SendSpeech {
 			}
 		}
 
-		/*
-		* Get the response from the service.
-		*/
-		Debug.Log("Response:");
-		using (WebResponse response = request.GetResponse())
-		{
+		// init your request...then:
+		DoWithResponse(request, (response) => {
 			string responseString;
-			Debug.Log(((HttpWebResponse)response).StatusCode);
+//			Debug.Log(((HttpWebResponse)response).StatusCode);
 
 			using (StreamReader sr = new StreamReader(response.GetResponseStream()))
 			{
@@ -56,7 +52,23 @@ public static class SendSpeech {
 			}
 
 			Debug.Log(responseString);
-//			Console.ReadLine();
-		}
+		});
+	}
+
+	static void DoWithResponse(HttpWebRequest request, Action<HttpWebResponse> responseAction)
+	{
+		Action wrapperAction = () =>
+		{
+			request.BeginGetResponse(new AsyncCallback((iar) =>
+				{
+					var response = (HttpWebResponse)((HttpWebRequest)iar.AsyncState).EndGetResponse(iar);
+					responseAction(response);
+				}), request);
+		};
+		wrapperAction.BeginInvoke(new AsyncCallback((iar) =>
+			{
+				var action = (Action)iar.AsyncState;
+				action.EndInvoke(iar);
+			}), wrapperAction);
 	}
 }

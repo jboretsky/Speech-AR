@@ -33,7 +33,7 @@ public class Recognition : MonoBehaviour {
 			SavWav.Save("clip"+i, _audio.clip);
 			Debug.Log ("Saved audio clip" + i);
 			SendSpeech.Send(Application.dataPath+"/clip"+i+".wav");
-			_audio.clip = Microphone.Start("Built-in Microphone", false, 5, 44100);
+			_audio.clip = Microphone.Start("Built-in Microphone", false, 3, 44100);
 		}
 	}
 }
